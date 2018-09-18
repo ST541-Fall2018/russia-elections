@@ -13,7 +13,7 @@ ok_stations <- read_rds(clean_data_location)
 ```
 
 
-# Observed test statistic
+## Observed test statistic
 
 ```{r}
 # Assumes `x` is a vector of percentages
@@ -25,7 +25,7 @@ count_integers <- function(x, tolerance = 0.05){
   count_integers(turnout_percent)))
 ```
 
-# A single simulation
+## A single simulation
 
 ```{r}
 turnout <- with(ok_stations, 
@@ -35,10 +35,10 @@ turnout <- with(ok_stations,
 count_integers(turnout)
 ```
 
-# Now many simulations
+## Now many simulations
 
 Generate 1000 turnout vectors:
-```{r}
+```{r, sim-many-turnouts}
 sim_turnouts <- rerun(.n = 1000, 
   with(ok_stations, 
     100*(rbinom(region, size = voters, prob = turnout_percent/100) /
@@ -47,7 +47,7 @@ sim_turnouts <- rerun(.n = 1000,
 ```
 
 For each turnout vector, count the number that are integers:
-```{r}
+```{r, stat-for-many-turnouts}
 sim_integer_turnouts <- map_dbl(sim_turnouts, count_integers)
 ```
 
@@ -62,5 +62,9 @@ A visual comparison:
 ggplot(mapping = aes(x = sim_integer_turnouts)) +
   geom_histogram(binwidth = 20, center = 0) +
   geom_vline(xintercept = integer_turnout_2018)
+```
+
+```{r}
+sessionInfo()
 ```
 
