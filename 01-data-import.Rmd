@@ -1,0 +1,111 @@
+---
+title: 2018 Russian election fraud
+---
+
+# Data import and cleaning
+
+```{r setup}
+library(tidyverse)
+library(here)
+```
+
+## Extract and import data
+
+If data isn't already unzipped, unzip:
+```{r}
+if(!file.exists(here("data", "2018.txt"))){
+  unzip(here("data", "2018.zip"), exdir = here("data"))
+}
+```
+
+Import 2018:
+```{r}
+election_2018 <- read_delim(here("data", "2018.txt"), 
+  delim = "\t")
+```
+
+## Column name translations
+
+| Russian | English |
+|---------|---------| 
+| Число избирателей, включенных в список избирателей | Number of voters included in the voters list |
+| Число избирательных бюллетеней, полученных участковой избирательной комиссией | The number of ballots received by the  precinct election commission |
+| Число избирательных бюллетеней, выданных избирателям, проголосовавшим досрочно | The number of ballots issued to voters who  voted early |
+| Число избирательных бюллетеней, выданных в помещении для голосования в день голосования | The number of ballots issued in a polling station on election day |
+| Число избирательных бюллетеней, выданных вне помещения для голосования в день голосования | The number of ballots issued  outside the polling station on voting day |
+| Число погашенных избирательных бюллетеней | Number of canceled ballot papers |
+| Число избирательных бюллетеней в переносных ящиках для голосования | The number of ballots in mobile ballot boxes |
+| Число бюллетеней в стационарных ящиках для голосования | Number of ballots in stationary ballot boxes |
+| Число недействительных избирательных бюллетеней | Number of invalid ballots |
+| Число действительных избирательных бюллетеней | Number of valid ballots |
+| Число утраченных избирательных бюллетеней | Number of lost ballots |
+| Число избирательных бюллетеней, не учтенных при получении | The number of ballots not recorded in the receipt of |
+| Бабурин Сергей Николаевич | Baburin Sergey Nikolaevich |
+| Грудинин Павел Николаевич | Grudinin Pavel Nikolaevich |
+| Жириновский Владимир Вольфович | Zhirinovsky Vladimir Volfovich |
+| Путин Владимир Владимирович | Putin Vladimir Vladimirovich |
+| Собчак Ксения Анатольевна | Sobchak Ksenia Anatolyevna |
+| Сурайкин Максим Александрович | Suraykin Maxim Alexandrovich |
+| Титов Борис Юрьевич | Titov Boris Yuryevich |
+| Явлинский Григорий Алексеевич | Yavlinsky Grigory Alekseevich |
+ 
+Extract relevant columns and calculate others: 
+```{r}
+ballot_counts <- election_2018 %>% 
+  select(region,
+    tik, 
+    uik,
+    voters = `Число избирателей, включенных в список избирателей`,
+    leader = `Путин Владимир Владимирович`,
+    ballots_inside = `Число избирательных бюллетеней, выданных в помещении для голосования в день голосования`,
+    ballots_outside = `Число избирательных бюллетеней, выданных вне помещения для голосования в день голосования`,
+    ballots_early = `Число избирательных бюллетеней, выданных избирателям, проголосовавшим досрочно`,
+    invalid = `Число недействительных избирательных бюллетеней`,
+    valid = `Число действительных избирательных бюллетеней`) %>% 
+  mutate(
+    given = ballots_inside + ballots_outside + ballots_early,
+    received = invalid + valid,
+    turnout_percent = given/voters * 100,
+    leader_percent = leader/received * 100
+  ) %>% 
+  select(turnout_percent, leader_percent, everything())
+```
+
+Filter out some polling stations:
+```{r}
+ok_stations <-
+  ballot_counts %>% 
+  filter(received > 0, given < voters, voters > 100)
+```
+
+Take a peek:
+```{r}
+ok_stations
+```
+
+
+## Graphical checks
+
+Should match Figure 1 in article:
+```{r}
+ok_stations %>% 
+  ggplot(aes(leader_percent)) +
+    geom_freqpoly(binwidth = 0.1, center = 0) +
+    labs(x = "% for Putin")
+
+ok_stations %>% 
+  ggplot(aes(turnout_percent)) +
+    geom_freqpoly(binwidth = 0.1, center = 0) +
+    labs(x = "% Turnout")
+```
+
+
+## Save out some clean data 
+
+```{r}
+ok_stations %>% 
+  write_csv(here("results", "2018_ok_stations.csv")) %>% 
+  write_rds(here("results", "2018_ok_stations.rds"))
+```
+
+

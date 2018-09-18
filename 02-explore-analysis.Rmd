@@ -1,0 +1,45 @@
+---
+title: 2018 Russian election fraud
+---
+
+# Exploring the analysis
+
+```{r setup}
+library(tidyverse)
+library(here)
+
+clean_data_location <- here("results", "2018_ok_stations.rds")
+ok_stations <- read_rds(clean_data_location)
+```
+
+## Calculating a test statistic: the number of integer polling stations
+
+The article uses the **number of polling stations that report an integer turnout** as evidence of election fraud.
+
+**Task 1:**  How many polling stations reported an integer turnout in 2018?
+
+Try with a small example first.  Imagine `x` contains these 4 turnouts:
+```{r}
+x <- c(85, 85.2, 86, 100*1562/1838)
+```
+
+What should the result be?  How can you calculate it with code?
+```{r}
+
+```
+
+Then, try it with the actual turnouts in `ok_stations$turnout_percent`
+```{r}
+
+```
+
+## Simulating turnouts
+
+**Task 2**: How would you simulate the turnout percentage for a polling station in the absence of fraud?
+
+What distribution would you use?  What would you use for its parameter values?
+
+Simulate a turnout for the first polling station:
+```{r}
+ok_stations %>% slice(1)
+```

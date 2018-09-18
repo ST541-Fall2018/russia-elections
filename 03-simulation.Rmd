@@ -1,0 +1,66 @@
+---
+title: 2018 Russian election fraud
+---
+  
+# A complete simulation 
+
+```{r setup}
+library(tidyverse)
+library(here)
+
+clean_data_location <- here("results", "2018_ok_stations.rds")
+ok_stations <- read_rds(clean_data_location)
+```
+
+
+# Observed test statistic
+
+```{r}
+# Assumes `x` is a vector of percentages
+count_integers <- function(x, tolerance = 0.05){
+  sum(abs(x - round(x)) < tolerance)
+}
+
+(integer_turnout_2018 <- with(ok_stations,
+  count_integers(turnout_percent)))
+```
+
+# A single simulation
+
+```{r}
+turnout <- with(ok_stations, 
+    100*(rbinom(region, size = voters, prob = turnout_percent/100) /
+         voters)
+  )
+count_integers(turnout)
+```
+
+# Now many simulations
+
+Generate 1000 turnout vectors:
+```{r}
+sim_turnouts <- rerun(.n = 1000, 
+  with(ok_stations, 
+    100*(rbinom(region, size = voters, prob = turnout_percent/100) /
+         voters)
+  ))
+```
+
+For each turnout vector, count the number that are integers:
+```{r}
+sim_integer_turnouts <- map_dbl(sim_turnouts, count_integers)
+```
+
+## Summarize simulated integer turnouts
+
+```{r}
+quantile(sim_integer_turnouts, c(0.1, 0.5, 0.9))
+```
+
+A visual comparison:
+```{r}
+ggplot(mapping = aes(x = sim_integer_turnouts)) +
+  geom_histogram(binwidth = 20, center = 0) +
+  geom_vline(xintercept = integer_turnout_2018)
+```
+
