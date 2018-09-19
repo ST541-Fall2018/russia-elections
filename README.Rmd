@@ -29,11 +29,11 @@ The original article code can be found at: https://github.com/dkobak/elections/
 4. **Group Activity** 
     
     * Access the class workspace on RStudio cloud.  Open `russia-elections` project and save a copy.
-    * Knit `01-data-import.Rmd`.  What is reported by the polling stations? How is the turnout calculated from the available data? Compare the figures, does this data seem to match the paper?
+    * Knit `01_data-import.Rmd`.  What is reported by the polling stations? How is the turnout calculated from the available data? Compare the figures, does this data seem to match the paper?
 
 5. **Class Discssion** Clarify objective and relevant data.
 
-6. **Group Activity** `02-explore-analysis.Rmd` Find the number of *integer turnouts* in 2018.
+6. **Group Activity** `02_explore-analysis.Rmd` Find the number of *integer turnouts* in 2018.
 
 7. **Class Discssion** Why is this hard? 
 
