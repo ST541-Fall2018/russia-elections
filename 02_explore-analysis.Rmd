@@ -20,7 +20,7 @@ The article uses the **number of polling stations that report an integer turnout
 
 Try with a small example first.  Imagine `x` contains these 4 turnouts:
 ```{r}
-x <- c(85, 85.2, 86, 100*1562/1838)
+(x <- c(85, 85.2, 100*(((0.8 - 0.2) * 2000))/2000, 100*1562/1838))
 ```
 
 What should the result be?  How can you calculate it with code?
